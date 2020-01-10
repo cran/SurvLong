@@ -1,3 +1,6 @@
+importFrom("methods", "is")
+importFrom("stats", "lm", "pnorm", "quantile")
+
 export("fullKernel",
        "halfKernel",
        "lastValue",

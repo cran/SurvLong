@@ -1,0 +1,8 @@
+SurvLong v1.1 (Release date: 2020-01-08)
+==============
+
+Changes:
+
+* Changes to address condition has length > 1 failures
+* Added verbose input option to allow for screen prints to be halted
+* Added message() for change in input screen prints

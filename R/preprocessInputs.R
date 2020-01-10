@@ -44,12 +44,12 @@ preprocessInputs <- function(data.x, data.z) {
   #--------------------------------------------------------------------------#
   if( !is.integer(data.z[,1L]) ) {
     data.z[,1L] <- as.integer(round(data.z[,1L],0))
-    cat("Patient IDs in data.z were coerced to integer.\n")
+    message("Patient IDs in data.z were coerced to integer.\n")
   }
 
   if( !is.integer(data.x[,1L]) ) {
     data.x[,1L] <- as.integer(round(data.x[,1L],0))
-    cat("Patient IDs in data.x were coerced to integer.\n")
+    message("Patient IDs in data.x were coerced to integer.\n")
   }
 
   #--------------------------------------------------------------------------#

@@ -28,6 +28,9 @@
 #  maxiter        an object of class numeric.                                  #
 #                 maximum number of iterations allowed to attain convergence   #
 #                                                                              #
+#  verbose        an object of class logical.                                  #
+#                 TRUE indicates that screen prints are generated              #
+#                                                                              #
 #  Outputs                                                                     #
 #                                                                              #
 #  Returns a list                                                              #
@@ -42,7 +45,8 @@ nearValue <- function(X,
                       Z, 
                       tau,
                       tol = 0.001,
-                      maxiter = 100){
+                      maxiter = 100, 
+                      verbose = TRUE){
 
   #--------------------------------------------------------------------------#
   # Process and verify input datasets                                        #
@@ -77,8 +81,8 @@ nearValue <- function(X,
 
   invdU <- try(solve(score$dUdBeta), silent = TRUE)
 
-  if( class(invdU) == 'try-error' ) {
-    cat("Unable to invert derivative of estimating equation.\n")
+  if( is(invdU, 'try-error') ) {
+    cat("unable to invert derivative of estimating equation\n")
     stop(attr(invdU,"condition"))
   }
 
@@ -100,7 +104,7 @@ nearValue <- function(X,
   results[,3L] <- bHat/sdVec
   results[,4L] <- 2.0*pnorm(-abs(results[,3L]))
 
-  print(results)
+  if (verbose) print(results)
 
   zv <- bHat/sdVec
   pv <- 2.0*pnorm(-abs(zv))

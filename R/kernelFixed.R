@@ -57,7 +57,8 @@ kernelFixed <- function(X,
                         kType,
                         tol,
                         maxiter,
-                        scoreFunction){
+                        scoreFunction, 
+                        verbose){
 
   #--------------------------------------------------------------------------#
   # Process and verify input datasets                                        #
@@ -94,7 +95,7 @@ kernelFixed <- function(X,
                                     c("estimate","stdErr","z-value","p-value")))
   for( bd in 1L:lbd ) {
 
-    cat("\nBandwidth: ", bandwidth[bd], "\n", sep="")
+    if (verbose) cat("\nBandwidth: ", bandwidth[bd], "\n", sep="")
 
     bHat[bd,] <- betaEst(Z = Z,
                          X = X, 
@@ -120,7 +121,7 @@ kernelFixed <- function(X,
 
     invdU <- try(solve(score$dUdBeta), silent = TRUE)
 
-    if( class(invdU) == 'try-error' ) {
+    if( is(invdU,'try-error') ) {
       cat("Unable to invert derivative of estimating equation.\n")
       stop(attr(invdU,"condition"))
     }
@@ -134,8 +135,10 @@ kernelFixed <- function(X,
     results[,3L] <- bHat[bd,]/sdVec[bd,]
     results[,4L] <- 2.0*pnorm(-abs(results[,3L]))
 
-    print(results)
-    cat("\n")
+    if (verbose) {
+      print(results)
+      cat("\n")
+    }
 
   }
 

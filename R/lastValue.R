@@ -42,7 +42,8 @@ lastValue <- function(X,
                       Z, 
                       tau,
                       tol = 0.001,
-                      maxiter = 100){
+                      maxiter = 100, 
+                      verbose = TRUE){
 
   #--------------------------------------------------------------------------#
   # Process and verify input datasets                                        #
@@ -77,8 +78,8 @@ lastValue <- function(X,
 
   invdU <- try(solve(score$dUdBeta), silent = TRUE)
 
-  if( class(invdU) == 'try-error' ) {
-    cat("Unable to invert derivative of estimating equation.\n")
+  if( is(invdU, 'try-error') ) {
+    cat("unable to invert derivative of estimating equation\n")
     stop(attr(invdU,"condition"))
   }
 
@@ -100,7 +101,7 @@ lastValue <- function(X,
   results[,3L] <- bHat/sdVec
   results[,4L] <- 2.0*pnorm(-abs(results[,3L]))
 
-  print(results)
+  if (verbose) print(results)
 
   zv <- bHat/sdVec
   pv <- 2.0*pnorm(-abs(zv))

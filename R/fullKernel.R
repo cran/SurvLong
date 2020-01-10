@@ -60,16 +60,18 @@ fullKernel <- function(X,
                        kType = "epan", 
                        bw = NULL,
                        tol = 0.001,
-                       maxiter = 100){
+                       maxiter = 100, 
+                       verbose = TRUE){
 
-  if( is(bw,"NULL") ) {
+  if( is.null(x = bw) ) {
     result <- kernelAuto(X = X,
                          Z = Z,
                          tau = tau,
                          kType = kType,
                          tol = tol,
                          maxiter = maxiter,
-                         scoreFunction = "scoreFull")
+                         scoreFunction = "scoreFull", 
+                         verbose = verbose)
   } else {
     result <- kernelFixed(X = X,
                           Z = Z,
@@ -78,7 +80,8 @@ fullKernel <- function(X,
                           kType = kType,
                           tol = tol,
                           maxiter = maxiter,
-                          scoreFunction = "scoreFull")
+                          scoreFunction = "scoreFull", 
+                          verbose = verbose)
   }
 
 

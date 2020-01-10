@@ -12,7 +12,7 @@ values with both forward and backward lagged covariates.
 }
 \usage{
 fullKernel(X, Z, tau, kType = "epan", bw = NULL, tol = 0.001, 
-           maxiter = 100)
+           maxiter = 100, verbose = TRUE)
 }
 \arguments{
   \item{X    }{an object of class data.frame. 
@@ -50,6 +50,7 @@ fullKernel(X, Z, tau, kType = "epan", bw = NULL, tol = 0.001,
                Newton-Raphson method.}
   \item{maxiter }{ An object of class numeric. The maximum number of iterations
                   used to estimate regression parameters.}
+  \item{verbose }{ An object of class logical. TRUE results in screen prints.}
 }
 \value{
 A list is returned. If bandwidths are provided, each element 
@@ -72,8 +73,10 @@ elements are returned:
   \item{MSE     }{The vector of MSE for each bandwidth.}
 }
 \references{
-Cao, H., Churpek, M. M., Zeng, D., and Fine, J. P. (2015).
-Journal of the American Statistical Association, in press.
+Cao H., Churpek M. M., Zeng D., Fine J. P. 
+(2015).
+Analysis of the proportional hazards model with sparse longitudinal covariates.
+Journal of the American Statistical Association, 110, 1187-1196.
 }
 \author{
 Hongyuan Cao, Mathew M. Churpek, Donglin Zeng, Jason P. Fine, and Shannon T. Holloway

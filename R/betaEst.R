@@ -61,7 +61,7 @@ betaEst <- function(Z,
   # If a starting value for Newton-Raphson provided, use. Else, initialize   #
   # to small positive value (0.01).                                          #
   #--------------------------------------------------------------------------#
-  if( is(betaGuess, "NULL") ) {
+  if( is.null(x = betaGuess) ) {
     beta <- numeric(ncol(Z) - 2L)
     beta[] <- 0.01
   } else {
@@ -89,7 +89,7 @@ betaEst <- function(Z,
     #----------------------------------------------------------------------#
     Ldet <- det(Lvec$dUdBeta)
     if( (Ldet < 1.5e-8 && Ldet > -1.5e-8) ) {
-      stop("Singular matrix encountered in Newton-Raphson.")
+      stop("singular matrix encountered in Newton-Raphson")
     }
 
     #----------------------------------------------------------------------#

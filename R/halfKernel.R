@@ -60,9 +60,10 @@ halfKernel <- function(X,
                        kType = "epan", 
                        bw = NULL,
                        tol = 0.001,
-                       maxiter = 100){
+                       maxiter = 100, 
+                       verbose = TRUE){
 
-  if( is(bw,"NULL") ) {
+  if( is.null(x = bw) ) {
 
     result <- kernelAuto(X = X,
                          Z = Z,
@@ -70,7 +71,8 @@ halfKernel <- function(X,
                          kType = kType,
                          tol = tol,
                          maxiter = maxiter,
-                         scoreFunction = "scoreHalf")
+                         scoreFunction = "scoreHalf", 
+                         verbose = verbose)
 
   } else {
 
@@ -81,7 +83,8 @@ halfKernel <- function(X,
                           kType = kType,
                           tol = tol,
                           maxiter = maxiter,
-                          scoreFunction = "scoreHalf")
+                          scoreFunction = "scoreHalf", 
+                          verbose = verbose)
 
   }
 

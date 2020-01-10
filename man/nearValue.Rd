@@ -11,7 +11,7 @@ Regression parameter are estimated using the nearest value to
 imputate missing values.
 }
 \usage{
-nearValue(X, Z, tau, tol = 0.001, maxiter = 100)
+nearValue(X, Z, tau, tol = 0.001, maxiter = 100, verbose = TRUE)
 }
 \arguments{
   \item{X    }{an object of class data.frame. 
@@ -33,6 +33,7 @@ nearValue(X, Z, tau, tol = 0.001, maxiter = 100)
                Newton-Raphson method.}
   \item{maxiter }{ An object of class numeric. The maximum number of iterations
                   used to estimate regression parameters.}
+  \item{verbose }{ An object of class logical. TRUE results in screen prints.}
 }
 \value{
 A list is returned. 
@@ -44,8 +45,10 @@ A list is returned.
 
 }
 \references{
-Cao, H., Churpek, M. M., Zeng, D., and Fine, J. P. (2015).
-Journal of the American Statistical Association, in press.
+Cao H., Churpek M. M., Zeng D., Fine J. P. 
+(2015).
+Analysis of the proportional hazards model with sparse longitudinal covariates.
+Journal of the American Statistical Association, 110, 1187-1196.
 }
 \author{
 Hongyuan Cao, Mathew M. Churpek, Donglin Zeng, Jason P. Fine, and Shannon T. Holloway

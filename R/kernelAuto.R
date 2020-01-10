@@ -59,7 +59,8 @@ kernelAuto <- function(X,
                        kType,
                        tol,
                        maxiter,
-                       scoreFunction){
+                       scoreFunction, 
+                       verbose){
 
   #--------------------------------------------------------------------------#
   # Process and verify input datasets                                        #
@@ -255,11 +256,13 @@ kernelAuto <- function(X,
   results[,3L] <- bHat/sdVec
   results[,4L] <- 2.0*pnorm(-abs(results[,3L]))
 
-  cat("\nBandwidth search range: ", bw[1], " - ", bw[lbd], "\n", sep="")
-  cat("Optimal bandwidth: ", bw[opt_h], "\n", sep="")
-  cat("MSE: ", minMSE, "\n\n", sep="")
+  if (verbose) {
+    cat("\nBandwidth search range: ", bw[1], " - ", bw[lbd], "\n", sep="")
+    cat("Optimal bandwidth: ", bw[opt_h], "\n", sep="")
+    cat("MSE: ", minMSE, "\n\n", sep="")
 
-  print(results)
+    print(results)
+  }
 
   zv <- bHat/sdVec
   pv <- 2.0*pnorm(-abs(zv))
