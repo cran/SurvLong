@@ -231,7 +231,7 @@ kernelAuto <- function(X,
 
   invdU <- try(solve(score$dUdBeta), silent = TRUE)
 
-  if( class(invdU) == 'try-error' ) {
+  if( is(object = invdU, class2 = 'try-error') ) {
     cat("Unable to invert derivative of estimating equation.\n")
     stop(attr(invdU,"condition"))
   }
