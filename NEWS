@@ -1,3 +1,18 @@
+SurvLong v1.3 (Release date: 2023-09-30)
+
+Changes:
+
+* Corrected model for internal optimal bandwidth estimation under full kernel
+  previous verions used b~bw; should be b ~ bw^2
+* Cleaned-up documentation; converted to roxygen notation
+* Stylistic clean-up of some functions.
+
+SurvLong v1.2 (Release date: 2022-06-07)
+
+Changes:
+
+* Maintainer e-mail address
+
 SurvLong v1.1 (Release date: 2020-01-08)
 ==============
 

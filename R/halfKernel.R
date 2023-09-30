@@ -1,93 +1,69 @@
-#******************************************************************************#
-# Public calling function for half kernel method                               #
-#******************************************************************************#
-#                                                                              #
-# Inputs                                                                       #
-#                                                                              #
-#  X              an object of class data.frame.                               #
-#                 The structure of the data.frame must be                      #
-#                 \{patient ID, event time, event indicator\}.                 #
-#                 Patient IDs must be of class integer or be able to be        #
-#                 coerced to class integer without loss of information.        #
-#                 Missing values must be indicated as NA.                      #
-#                                                                              #
-#  Z              an object of class data.frame.                               #
-#                 The structure of the data.frame must be                      #
-#                 \{patient ID, time of measurement, measurement(s)\}.         #
-#                 Patient IDs must be of class integer or be able to be        #
-#                 coerced to class integer without loss of information.        #
-#                 Missing values must be indicated as NA.                      #
-#                                                                              #
-#  tau            an object of class numeric.                                  #
-#                 The desired time point.                                      #
-#                                                                              #
-#  kType          an object of class character indicating the type of          #
-#                 smoothing kernel to use in the estimating equation.          #
-#                 Must be one of \{"epan", "uniform", "gauss"\}, where         #
-#                 "epan" is the Epanechnikov kernel and "gauss" is the         #
-#                 Gaussian kernel.                                             #
-#                                                                              #
-#  bw             an object of class numeric or NULL.                          #
-#                 If numeric, parameter estimates will be obtained at each     #
-#                 value. If null, auto tune method will be used.               #
-#                                                                              #
-#  tol            an object of class numeric.                                  #
-#                 maximum allowed change in parameter estimates, beyond which  #
-#                 the parameter estimates are deemed to have converged.        #
-#                                                                              #
-#  maxiter        an object of class numeric.                                  #
-#                 maximum number of iterations allowed to attain convergence   #
-#                                                                              #
-#  Outputs                                                                     #
-#                                                                              #
-#  Returns a list                                                              #
-#                                                                              #
-# betaHat The estimated model coefficients.                                    #
-# stdErr  The standard error for each coefficient.                             #
-# zValue  The estimated z-value for each coefficient.                          #
-# pValue  The p-value for each coefficient.                                    #
-#                                                                              #
-# If the bandwidth is determined automatically, two additional list            #
-# elements are returned:                                                       #
-#                                                                              #
-#  optBW   The estimated optimal bandwidth.                                    #
-#  minMSE  The mean squared error at the optimal bandwidth.                    #
-#                                                                              #
-#******************************************************************************#
+#' Half Kernel Estimation with Backward Lagged Covariates
+#' 
+#' A kernel weighting scheme to evaluate the effects of longitudinal covariates 
+#'   on the occurrence of events when the time-dependent covariates are 
+#'   measured intermittently. Regression parameter estimation using half kernel 
+#'   imputation of missing values with backward lagged covariates. 
+#'   
+#' @inherit fullKernel params return references
+#' @seealso \code{\link{fullKernel}}, \code{\link{lastValue}}, \code{\link{nearValue}}
+#'
+#' @examples 
+#'  data(SurvLongData)
+#'
+#'  exp <- halfKernel(X = X, Z = Z, tau = 1.0, bw = 0.015)
+#'
+#' @include kernelAuto.R kernelFixed.R
+#' @export
 halfKernel <- function(X, 
                        Z, 
                        tau,
-                       kType = "epan", 
+                       kType = c("epan", "uniform", "gauss"), 
                        bw = NULL,
                        tol = 0.001,
-                       maxiter = 100, 
-                       verbose = TRUE){
+                       maxiter = 100L, 
+                       verbose = TRUE) {
 
-  if( is.null(x = bw) ) {
+  kType <- match.arg(kType)
+  
+  stopifnot(
+    "`X` must be a data.frame with 3 columns" = !missing(X) && 
+      is.data.frame(X) && ncol(X) == 3L,
+    "`Z` must be a data.frame with at leat 3 columns" = !missing(Z) && 
+      is.data.frame(Z) && ncol(Z) >= 3L,
+    "`tau must be a scalar numeric" = !missing(tau) && is.numeric(tau) &&
+      is.vector(tau) && length(tau) == 1L,
+    "`bw` must be NULL or a numeric vector" = is.null(bw) ||
+      {is.numeric(bw) && is.vector(bw)},
+    "`tol` must be a positive scalar" = is.numeric(tol) && is.vector(tol) &&
+      length(tol) == 1L && tol > 0.0,
+    "`maxiter` must be an integer" = is.numeric(maxiter) && 
+      isTRUE(all.equal(maxiter, round(maxiter))) && maxiter > 0,
+    "`verbose` must be a logical" = is.logical(verbose)
+  )
+  
+  if (is.null(bw)) {
 
-    result <- kernelAuto(X = X,
-                         Z = Z,
-                         tau = tau,
-                         kType = kType,
-                         tol = tol,
-                         maxiter = maxiter,
-                         scoreFunction = "scoreHalf", 
-                         verbose = verbose)
+    kernelAuto(X = X,
+               Z = Z,
+               tau = tau,
+               kType = kType,
+               tol = tol,
+               maxiter = maxiter,
+               scoreFunction = "scoreHalf", 
+               verbose = verbose)
 
   } else {
 
-    result <- kernelFixed(X = X,
-                          Z = Z,
-                          tau = tau,
-                          bandwidth = bw,
-                          kType = kType,
-                          tol = tol,
-                          maxiter = maxiter,
-                          scoreFunction = "scoreHalf", 
-                          verbose = verbose)
+    kernelFixed(X = X,
+                Z = Z,
+                tau = tau,
+                bandwidth = bw,
+                kType = kType,
+                tol = tol,
+                maxiter = maxiter,
+                scoreFunction = "scoreHalf", 
+                verbose = verbose)
 
   }
-
-  return(result)
-
 }

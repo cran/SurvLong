@@ -1,142 +1,109 @@
-#******************************************************************************#
-# Score calculation for last value carried forward method                      #
-#******************************************************************************#
-#                                                                              #
-# Inputs                                                                       #
-#                                                                              #
-#  beta           an object of class numeric.                                  #
-#                 parameter estimate(s)                                        #
-#                                                                              #
-#  Z              an object of class data.frame.                               #
-#                 The structure of the data.frame must be                      #
-#                 \{patient ID, time of measurement, measurement(s)\}.         #
-#                 Patient IDs must be of class integer or be able to be        #
-#                 coerced to class integer without loss of information.        #
-#                 Missing values must be indicated as NA.                      #
-#                                                                              #
-#  X              an object of class data.frame.                               #
-#                 The structure of the data.frame must be                      #
-#                 \{patient ID, event time, event indicator\}.                 #
-#                 Patient IDs must be of class integer or be able to be        #
-#                 coerced to class integer without loss of information.        #
-#                 Missing values must be indicated as NA.                      #
-#                                                                              #
-#  tau            an object of class numeric.                                  #
-#                 The desired time point.                                      #
-#                                                                              #
-#  Outputs                                                                     #
-#                                                                              #
-#  Returns a list                                                              #
-#                                                                              #
-#  U              an object of class numeric.                                  #
-#                 Score function(s)                                            #
-#                                                                              #
-#  dUdBeta        an object of class numeric matrix                            #
-#                 Derivative of the Score function                             #
-#                                                                              #
-#  mMatrix        an object of class numeric matrix                            #
-#                 Sigma                                                        # 
-#                                                                              #
-#******************************************************************************#
+#' Score calculation for last value carried forward method
+#'
+#' @noRd
+#' @param beta An object of class numeric. The parameter estimate(s).
+#' @param Z An object of class data.frame. The structure of the data.frame must 
+#'   be \{patient ID, time of measurement, measurement(s)\}. Missing values 
+#'   should have been previously set to 0 or removed.
+#' @param X An object of class data.frame. The structure of the data.frame must
+#'   be \{patient ID, event time, event indicator\}. Missing values 
+#'   should have been previously set to 0 or removed.
+#' @param tau An object of class numeric. The desired time point.
+#' @param h An object of class numeric. The  kernel bandwidth.
+#' @param kType An object of class character indicating the type of smoothing 
+#'   kernel to use in the estimating equation. Must be one of \{"epan", 
+#'   "uniform", "gauss"\}, where "epan" is the Epanechnikov kernel and "gauss" 
+#'   is the Gaussian kernel.
+#' @param ... Ignored.
+#' 
+#' @returns A list 
+#'  \itemize {
+#'    \item{U }{An object of class numeric. The Score function(s).}
+#'    \item{dUdBeta }{An object of class numeric matrix. The derivative of the 
+#'      Score function.}
+#'    \item{mMatrix }{An object of class numeric matrix. Sigma}
+#'  }
+#'    
+#' @include local_kernel.R
+#' @keywords internal
 scoreLVCF <- function(beta, 
                       Z,  
                       X,  
-                      tau, ...){
+                      tau, ...) {
 
   p <- ncol(Z) - 2L
 
-  Lmat <- matrix(data = 0.0, nrow = p, ncol = p)
-  Mmatrix <- matrix(data = 0.0, nrow = p, ncol = p)
-  Uvec <- numeric(length = p)
+  Lmat <- matrix(0.0, nrow = p, ncol = p)
+  Mmatrix <- matrix(0.0, nrow = p, ncol = p)
+  Uvec <- numeric(p)
 
   n <- nrow(X)
   nZ <- nrow(Z)
+  
+  extract_func <- function(x) {
+    it <- which.max(x[, 2L])
+    x[it, ]
+    }
 
-  extractLastCov <- function(x){
-    it <- which.max(x[,2L])
-    x[it,]
-  }
+  for (i in 1L:n) {
 
-  for( i in 1L:n ) {
+    # If the time is censored, do not include in summation
+    if (X[i, 3L] < 0.5) next
 
-    #----------------------------------------------------------------------#
-    # If the time is censored, do not include in summation                 #
-    #----------------------------------------------------------------------#
-    if( X[i,3L] < 0.5 ) next
+    # If the time is greater than the integration limit, do not include in
+    # the summation
+    time <- X[i, 2L]
 
-    #----------------------------------------------------------------------#
-    # If the time is greater than the integration limit, do not include in #
-    # the summation                                                        #
-    #----------------------------------------------------------------------#
-    time <- X[i,2L]
+    if (time > tau) next
 
-    if( time > tau ) next
+    # Calculate the S Function
 
-    #----------------------------------------------------------------------#
-    # Calculate the S Function                                             #
-    #----------------------------------------------------------------------#
+    # Identify patients still at risk (t >= time)
+    ptIDs <- X[time <= X[, 2L], 1L]
 
-    #----------------------------------------------------------------------#
-    # Identify patients still at risk (t >= time)                          #
-    #----------------------------------------------------------------------#
-    ptIDs <- X[time <= X[,2L],1L]
+    # Identify the covariates for this subset of patients
+    ZptIDs <- Z[, 1L] %in% ptIDs & (Z[, 2L] <= time)
 
-    #----------------------------------------------------------------------#
-    # Identify the covariates for this subset of patients                  #
-    #----------------------------------------------------------------------#
-    ZptIDs <- (Z[,1L] %in% ptIDs)
+    if (!any(ZptIDs)) next
 
-    #----------------------------------------------------------------------#
-    # Keep only those covariates measured before time                      #
-    #----------------------------------------------------------------------#
-    ZptIDs <- ZptIDs & (Z[,2L] <= time)
+    Z2 <- Z[ZptIDs, , drop = FALSE]
 
-    if( !any(ZptIDs) ) next
-
-    Z2 <- Z[ZptIDs,,drop=FALSE]
-
-    #----------------------------------------------------------------------#
-    # Identify largest times and accept those covariates                   #
-    #----------------------------------------------------------------------#
+    # Identify largest times and accept those covariates
     cova <- by(data = Z2,
-               INDICES = Z2[,1L],
-               FUN = extractLastCov,
-               simplify = FALSE)
+               INDICES = Z2[, 1L],
+               FUN = extract_func,
+               simplify = FALSE) |> 
+      unlist() |> 
+      matrix(ncol = {p + 2L}, byrow = TRUE)
 
-    cova <- matrix(data = unlist(cova), 
-                   ncol = {p+2L}, 
-                   byrow = TRUE)
-
-    IDs <- cova[,1L] == X[i,1L]
-    if( sum(IDs) != 1L ) next
-    cova <- cova[,c(-1L,-2L),drop=FALSE]
+    IDs <- cova[, 1L] == X[i, 1L]
+    if (sum(IDs) != 1L) next
+    cova <- cova[, -c(1L:2L), drop = FALSE]
 
     prod <- exp(cova %*% beta)
 
     s0 <- sum(prod)
 
-    if( (s0 > -1.5e-8) && (s0 < 1.5e-8) ) next
+    if ((s0 > -1.5e-8) && (s0 < 1.5e-8)) next
 
-    s1 <- colSums(prod[,1L]*cova)
+    s1 <- colSums(prod[, 1L] * cova)
 
-    tst <- matrix(apply(cova,1L,function(x){x %*% t(x)}),nrow=p*p)
+    tst <- matrix(apply(cova, 1L, tcrossprod), nrow = p * p)
     Zp <- rowSums(sweep(x = tst,
                         MARGIN = 2L,
-                        STATS = prod[,1L],
+                        STATS = prod[, 1L],
                         FUN = "*"))
-    s2 <- matrix(data = Zp, nrow = p, ncol = p)
+    s2 <- matrix(Zp, nrow = p, ncol = p)
 
-    tmp <- cova[IDs,] - s1/s0
+    tmp <- cova[IDs,] - s1 / s0
 
-    Mmatrix <- Mmatrix + tmp %*% t(tmp)
+    Mmatrix <- Mmatrix + tcrossprod(tmp)
 
     Uvec <- Uvec + tmp
 
-    Lmat <- Lmat + (s1 %o% s1 - s2*s0)/(s0*s0)
+    Lmat <- Lmat + (tcrossprod(s1) - s2 * s0) / (s0 * s0)
 
   }
 
-  return(list("U" = Uvec, "dUdBeta" = Lmat, "mMatrix" = Mmatrix))
-
+  list("U" = Uvec, "dUdBeta" = Lmat, "mMatrix" = Mmatrix)
 }
-

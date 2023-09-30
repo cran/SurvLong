@@ -1,73 +1,55 @@
-#******************************************************************************#
-# Kernel functions                                                             #
-#******************************************************************************#
-#                                                                              #
-# Inputs                                                                       #
-#                                                                              #
-#  t              an object of class numeric.                                  #
-#                 the time point(s) at which the kernel is to be calculated    #
-#                                                                              #
-#  h              an object of class  numeric.                                 #
-#                 the kernel bandwidth                                         #
-#                                                                              #
-#  kType          an object of class character indicating the type of          #
-#                 smoothing kernel to use in the estimating equation.          #
-#                 Must be one of \{"epan", "uniform", "gauss"\}, where         #
-#                 "epan" is the Epanechnikov kernel and "gauss" is the         #
-#                 Gaussian kernel.                                             #
-#                                                                              #
-# Outputs                                                                      #
-#                                                                              #
-#  An object of class numeric.                                                 #
-#                                                                              #
-#******************************************************************************#
-local_kernel <- function(t, h, kType){
+# Kernel functions
 
-  if( kType == "epan" ) {
-
-    res <- epanechnikov(t/h)/h
-
-  } else if( kType == "uniform" ) {
-
-    res <- uniform(t/h)/h
-
-  } else if( kType == "gauss" ) {
-
-    res <- gauss(t/h)/h
-
-  } else {
-
-    stop("unsupported kernel")
-
-  }
-
-  return(res)
+#' @noRd
+#' @param t An object of class numeric. The time point(s) at which the kernel is 
+#'   to be calculated.
+#' @param  h An object of class  numeric. The kernel bandwidth.
+#' @param kType An object of class character indicating the type of smoothing 
+#'   kernel to use in the estimating equation. Must be one of \{"epan", 
+#'   "uniform", "gauss"\}, where "epan" is the Epanechnikov kernel and "gauss" 
+#'   is the Gaussian kernel.
+#'   
+#' @returns An object of class numeric.
+#' 
+#' @keywords internal
+local_kernel <- function(t, h, kType) {
+  
+  switch(kType,
+         "epan" = .epanechnikov(t / h) / h,
+         "uniform" = .uniform(t / h) / h,
+         "gauss" = .gauss(t / h) / h,
+         stop("unsupported kernel", call. = FALSE))
 }
 
-epanechnikov <- function(t){
+#' Epanechnikov Kernel
+#' @noRd
+#' @keywords internal
+.epanechnikov <- function(t) {
 
   tst <- (-1.0 <= t) & (t <= 1.0 )
 
-  kt <- 0.75*( 1.0 - t*t )
-  kt[ !tst ] <- 0.0
+  kt <- 0.75 * (1.0 - t * t)
+  kt[!tst] <- 0.0
 
-  return(kt)
+  kt
 }
 
-uniform <- function(t){
+#' Uniform Kernel
+#' @noRd
+#' @keywords internal
+.uniform <- function(t) {
 
   tst <- (-1.0 <= t) & (t <= 1.0 )
   kt <- t
-  kt[  tst ] <- 0.5
-  kt[ !tst ] <- 0.0
+  kt[tst] <- 0.5
+  kt[!tst] <- 0.0
 
-  return(kt)
+  kt
 }
 
-gauss <- function(t){
-
-  kt <- exp(-t*t*0.5)/sqrt(2.0*pi)
-
-  return(kt)
-
+#' Gaussian Kernel
+#' @noRd
+#' @keywords internal
+.gauss <- function(t) {
+  exp(-t * t * 0.5) / sqrt(2.0 * pi)
 }
