@@ -42,18 +42,18 @@
 #'   the bandwidth is determined internally, each element of the list is a 
 #'   named vector calculated at the optimal bandwidth.
 #'   \itemize{
-#'     \item{betaHat }{The estimated model coefficients.}
-#'     \item{stdErr  }{The standard error for each coefficient.}
-#'     \item{zValue  }{The estimated z-value for each coefficient.}
-#'     \item{pValue  }{The p-value for each coefficient.}
+#'     \item betaHat: The estimated model coefficients.
+#'     \item stdErr: The standard error for each coefficient.
+#'     \item zValue: The estimated z-value for each coefficient.
+#'     \item pValue: The p-value for each coefficient.
 #'   }
 #'
 #'  If the bandwidth is determined internally, three additional list
 #'  elements are returned:
 #'   \itemize{
-#'     \item{optBW }{The estimated optimal bandwidth.}
-#'     \item{minMSE }{The mean squared error at the optimal bandwidth.}
-#'     \item{MSE }{The vector of MSE for each bandwidth.}
+#'     \item optBW: The estimated optimal bandwidth.
+#'     \item minMSE: The mean squared error at the optimal bandwidth.
+#'     \item MSE: The vector of MSE for each bandwidth.
 #'   }
 #'   
 #' @references 

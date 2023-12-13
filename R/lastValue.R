@@ -8,10 +8,10 @@
 #' @inherit fullKernel params references
 #' @returns A list 
 #'   \itemize{
-#'     \item{betaHat }{The estimated model coefficients.}
-#'     \item{stdErr  }{The standard error for each coefficient.}
-#'     \item{zValue  }{The estimated z-value for each coefficient.}
-#'     \item{pValue  }{The p-value for each coefficient.}
+#'     \item betaHat: The estimated model coefficients.
+#'     \item stdErr: The standard error for each coefficient.
+#'     \item zValue: The estimated z-value for each coefficient.
+#'     \item pValue: The p-value for each coefficient.
 #'   }
 #'   
 #'  
